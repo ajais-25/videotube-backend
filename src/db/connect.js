@@ -1,14 +1,18 @@
-const mongoose = require("mongoose");
-const { app } = require("../app");
+import mongoose from "mongoose";
+import { DB_NAME } from "../constants.js";
 
-const DB = process.env.MONGO_URI;
-
-mongoose
-    .connect(DB)
-    .then(() => {
-        console.log(`Connection Successful`);
-        app.listen(process.env.PORT || 3000, () =>
-            console.log(`Server is running on port 3000`)
+const connectDB = async () => {
+    try {
+        const connectionInstance = await mongoose.connect(
+            `${process.env.MONGO_URI}/${DB_NAME}`
         );
-    })
-    .catch((err) => console.log(`No Connection`));
+        console.log(
+            `\nMONGODB connected !! DB HOST: ${connectionInstance.connection.host}`
+        );
+    } catch (error) {
+        console.log("MONGODB connection error", error);
+        process.exit(1);
+    }
+};
+
+export default connectDB;
