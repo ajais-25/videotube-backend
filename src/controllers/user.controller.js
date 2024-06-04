@@ -171,13 +171,13 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
             process.env.REFRESH_TOKEN_SECRET
         );
 
-        const user = await User.find({ _id: decodedToken?._id });
+        const user = await User.findById(decodedToken?._id);
 
         if (!user) {
             throw new ApiError(404, "Invalid refresh token");
         }
 
-        if (incommingRefreshToken !== user[0]?.refreshToken) {
+        if (incommingRefreshToken !== user?.refreshToken) {
             throw new ApiError(401, "Refresh token is expired or used");
         }
 
@@ -187,7 +187,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         };
 
         const { accessToken, newRefreshToken } =
-            await generateAccessAndRefreshTokens(user[0]._id);
+            await generateAccessAndRefreshTokens(user._id);
 
         return res
             .status(200)
@@ -211,7 +211,10 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 const changeCurrentPassword = asyncHandler(async (req, res) => {
     const { oldPassword, newPassword } = req.body;
 
-    const user = await User.find({ _id: req.user._id });
+    const user = await User.findById(req.user?._id);
+
+    console.log(user);
+
     const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
 
     if (!isPasswordCorrect) {
