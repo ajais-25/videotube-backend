@@ -1,7 +1,10 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import {
+    deleteFromCloudinary,
+    uploadOnCloudinary,
+} from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 
@@ -256,10 +259,23 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 });
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
-    const avatarLocalPath = req.file?.avatar.path;
+    let avatarLocalPath;
+
+    if (req.file) {
+        avatarLocalPath = req.file.path;
+    }
 
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is required");
+    }
+
+    console.log(avatarLocalPath);
+
+    if (req.user.avatar) {
+        const oldLink = req.user.avatar.split("/");
+        const publicId = oldLink[oldLink.length - 1].split(".")[0];
+        console.log(publicId);
+        await deleteFromCloudinary(publicId);
     }
 
     const avatar = await uploadOnCloudinary(avatarLocalPath);
@@ -282,10 +298,25 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 });
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
-    const coverImageLocalPath = req.file?.coverImage.path;
+    let coverImageLocalPath;
+
+    console.log("In cover Image function");
+
+    if (req.file) {
+        coverImageLocalPath = req.file.path;
+    }
 
     if (!coverImageLocalPath) {
-        throw new ApiError(400, "Cover Image file is required");
+        throw new ApiError(400, "Cover Image is required");
+    }
+
+    console.log(coverImageLocalPath);
+
+    if (req.user.coverImage) {
+        const oldLink = req.user.coverImage.split("/");
+        const publicId = oldLink[oldLink.length - 1].split(".")[0];
+        console.log(publicId);
+        await deleteFromCloudinary(publicId);
     }
 
     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
