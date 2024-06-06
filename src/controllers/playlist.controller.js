@@ -45,6 +45,10 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
         throw new ApiError(400, "user id is missing");
     }
 
+    if (!isValidObjectId(userId)) {
+        throw new ApiError(400, "Not a valid user id");
+    }
+
     const userPlaylists = await Playlist.find({ owner: userId });
 
     if (!userPlaylists) {
@@ -70,6 +74,10 @@ const getPlaylistById = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Playlist id is missing");
     }
 
+    if (!isValidObjectId(playlistId)) {
+        throw new ApiError(400, "Not a valid playlist id");
+    }
+
     const playlist = await Playlist.findById(playlistId);
 
     if (!playlist) {
@@ -86,6 +94,10 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 
     if (!playlistId?.trim() || !videoId?.trim()) {
         throw new ApiError(400, "Playlist or Video id is missing");
+    }
+
+    if (!isValidObjectId(channelId) || !isValidObjectId(videoId)) {
+        throw new ApiError(400, "Not a valid playlistId id or video id");
     }
 
     const playlist = await Playlist.findById(playlistId);
@@ -108,6 +120,10 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Playlist or Video id is missing");
     }
 
+    if (!isValidObjectId(channelId) || !isValidObjectId(videoId)) {
+        throw new ApiError(400, "Not a valid playlistId id or video id");
+    }
+
     const playlist = await Playlist.findById(playlistId);
 
     if (!playlist) {
@@ -126,6 +142,10 @@ const deletePlaylist = asyncHandler(async (req, res) => {
 
     if (!playlistId?.trim()) {
         throw new ApiError(400, "Playlist id is missing");
+    }
+
+    if (!isValidObjectId(playlistId)) {
+        throw new ApiError(400, "Not a valid playlist id");
     }
 
     const deletedPlaylist = await Playlist.deleteOne({ _id: playlistId });
@@ -148,6 +168,10 @@ const updatePlaylist = asyncHandler(async (req, res) => {
 
     if (!playlistId?.trim()) {
         throw new ApiError(400, "Playlist id is missing");
+    }
+
+    if (!isValidObjectId(playlistId)) {
+        throw new ApiError(400, "Not a valid playlist id");
     }
 
     if (!name || !description) {
