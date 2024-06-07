@@ -96,7 +96,7 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Playlist or Video id is missing");
     }
 
-    if (!isValidObjectId(channelId) || !isValidObjectId(videoId)) {
+    if (!isValidObjectId(videoId) || !isValidObjectId(playlistId)) {
         throw new ApiError(400, "Not a valid playlistId id or video id");
     }
 
@@ -109,7 +109,9 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
     playlist.videos = playlist.videos.push(videoId);
     await playlist.save({ validateBeforeSave: false });
 
-    return res.status(200).json(200, playlist, "Video added successfully");
+    return res
+        .status(200)
+        .json(new ApiResponse(200, playlist, "Video added successfully"));
 });
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
@@ -120,7 +122,7 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Playlist or Video id is missing");
     }
 
-    if (!isValidObjectId(channelId) || !isValidObjectId(videoId)) {
+    if (!isValidObjectId(playlistId) || !isValidObjectId(videoId)) {
         throw new ApiError(400, "Not a valid playlistId id or video id");
     }
 
@@ -133,7 +135,9 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     playlist.videos = playlist.videos.pull(videoId);
     await playlist.save({ validateBeforeSave: false });
 
-    return res.status(200).json(200, playlist, "Video removed successfully");
+    return res
+        .status(200)
+        .json(new ApiResponse(200, playlist, "Video removed successfully"));
 });
 
 const deletePlaylist = asyncHandler(async (req, res) => {
