@@ -30,7 +30,27 @@ const deleteFromCloudinary = async (publicId) => {
         if (!publicId) return null;
 
         // delete file from cloudinary
-        const res = await cloudinary.uploader.destroy(publicId);
+        const res = await cloudinary.api.delete_resources([`${publicId}`], {
+            resource_type: "image",
+            invalidate: true,
+        });
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+};
+
+const deleteVideoFromCloudinary = async (publicId) => {
+    try {
+        if (!publicId) return null;
+
+        // delete file from cloudinary
+        const res = await cloudinary.api.delete_resources([`${publicId}`], {
+            resource_type: "video",
+            invalidate: true,
+        });
         return res;
         console.log(res);
     } catch (error) {
@@ -39,4 +59,4 @@ const deleteFromCloudinary = async (publicId) => {
     }
 };
 
-export { uploadOnCloudinary, deleteFromCloudinary };
+export { uploadOnCloudinary, deleteFromCloudinary, deleteVideoFromCloudinary };
