@@ -11,8 +11,31 @@ import {
 } from "../utils/cloudinary.js";
 
 const getAllVideos = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
+    const { page = 1, limit = 10, userId } = req.query;
     //TODO: get all videos based on query, sort, pagination
+
+    if (!userId?.trim()) {
+        throw new ApiError(400, "user id is missing");
+    }
+
+    if (!isValidObjectId(userId)) {
+        throw new ApiError(400, "Not a valid user id");
+    }
+
+    const skip = (page - 1) * limit;
+
+    const videos = await Video.find({ owner: userId })
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 });
+
+    if (!videos) {
+        throw new ApiError(500, "Something went wrong while fetching videos");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, videos, "Videos fetched Successfully"));
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
