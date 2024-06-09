@@ -8,15 +8,26 @@ const getVideoComments = asyncHandler(async (req, res) => {
     //TODO: get all comments for a video
     const { videoId } = req.params;
     const { page = 1, limit = 10 } = req.query;
+
+    const skip = (page - 1) * limit;
+
+    const comments = await Comment.find({ video: videoId })
+        .skip(skip)
+        .limit(limit);
+
+    if (!comments) {
+        throw new ApiError(500, "Something went wrong while fetching comments");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, comments, "Comments fetched Successfully"));
 });
 
 const addComment = asyncHandler(async (req, res) => {
     // TODO: add a comment to a video
     const { videoId } = req.params;
     const { content } = req.body;
-
-    console.log(videoId);
-    console.log(content);
 
     if (!videoId?.trim()) {
         throw new ApiError(400, "video id is required");
@@ -30,15 +41,11 @@ const addComment = asyncHandler(async (req, res) => {
         throw new ApiError(400, "content is required");
     }
 
-    console.log("Hello");
-
     const comment = await Comment.create({
         content,
         video: videoId,
         owner: req.user._id,
     });
-
-    console.log(comment);
 
     if (!comment) {
         throw new ApiError(500, "Something went wrong while creating comment");
